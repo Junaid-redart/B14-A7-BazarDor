@@ -3,6 +3,10 @@ import { notFound } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import PriceTicker from "@/components/PriceTicker";
 import type { Product, ProductDetails } from "@/types/product";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+
 
 const API_URL = "https://api.api-store.workers.dev/api/bazardor";
 
@@ -48,9 +52,18 @@ async function getProduct(slug: string) {
   }
 }
 
+
 export default async function ProductDetailsPage({
   params,
 }: PageProps) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/signin");
+  }
+
   const { slug } = await params;
   const product = await getProduct(slug);
 

@@ -1,34 +1,79 @@
 
-const prices = [
-  { name: "স্বর্ণমাছি চাল", price: 148, unit: "কেজি", change: 2.1 },
-  { name: "মিনিকেট চাল", price: 99, unit: "কেজি", change: -2.9 },
-  { name: "পেঁয়াজ", price: 54, unit: "কেজি", change: 1.5 },
-  { name: "আলু", price: 58, unit: "কেজি", change: -1.8 },
-  { name: "ডিম", price: 158, unit: "ডজন", change: 3.2 },
-];
+"use client";
+
+import { useEffect, useState } from "react";
+import type { Product } from "@/types/product";
+
+const API_URL = "https://api.api-store.workers.dev/api/bazardor/products";
 
 export default function PriceTicker() {
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        const res = await fetch(API_URL);
+
+        if (!res.ok) {
+          throw new Error("Failed to load products");
+        }
+
+        const data = await res.json();
+
+        const productList = Array.isArray(data)
+          ? data
+          : data.data?.products || data.products || data.data || [];
+
+        if (Array.isArray(productList)) {
+          setProducts(productList);
+        }
+      } catch (error) {
+        console.error("Ticker error:", error);
+      }
+    }
+
+    loadProducts();
+  }, []);
+
+  if (products.length === 0) {
+    return (
+      <div className="border-b border-gray-200 bg-white py-3 text-center text-sm text-gray-500">
+        বাজারদর লোড হচ্ছে...
+      </div>
+    );
+  }
+
   return (
     <div className="overflow-hidden border-b border-gray-200 bg-white py-3">
       <div className="ticker flex w-max gap-8">
-        {[...prices, ...prices].map((item, index) => (
+        {[...products, ...products].map((product, index) => (
           <div
-            key={index}
+            key={`${product.id}-${index}`}
             className="flex items-center gap-2 whitespace-nowrap text-sm"
           >
-            <span>🛒 {item.name}</span>
+            <span>
+              {product.image} {product.nameBn}
+            </span>
 
             <span className="text-gray-600">
-              {item.price.toLocaleString("bn-BD")} টাকা/{item.unit}
+              {product.today.toLocaleString("bn-BD")} টাকা
             </span>
 
             <span
               className={
-                item.change > 0 ? "text-red-600" : "text-green-600"
+                product.change.dir === "up"
+                  ? "text-red-600"
+                  : product.change.dir === "down"
+                  ? "text-green-600"
+                  : "text-gray-500"
               }
             >
-              {item.change > 0 ? "▲" : "▼"}{" "}
-              {Math.abs(item.change).toLocaleString("bn-BD")}%
+              {product.change.dir === "up"
+                ? "▲"
+                : product.change.dir === "down"
+                ? "▼"
+                : "—"}{" "}
+              {product.change.pct.toLocaleString("bn-BD")}%
             </span>
           </div>
         ))}
