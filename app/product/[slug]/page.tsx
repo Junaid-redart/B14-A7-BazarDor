@@ -60,9 +60,10 @@ export default async function ProductDetailsPage({
     headers: await headers(),
   });
 
-  if (!session) {
-    redirect("/signin");
-  }
+ 
+if (!session) {
+  redirect("/signin?message=login-required");
+}
 
   const { slug } = await params;
   const product = await getProduct(slug);
