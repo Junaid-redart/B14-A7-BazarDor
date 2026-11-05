@@ -5,6 +5,9 @@ import Hero from "@/components/Hero";
 import ProductCard from "@/components/ProductCard";
 import type { Product } from "@/types/product";
 
+export const dynamic = "force-dynamic";
+
+
 const API_URL = "https://api.api-store.workers.dev/api/bazardor/products";
 
 async function getProducts(): Promise<Product[]> {

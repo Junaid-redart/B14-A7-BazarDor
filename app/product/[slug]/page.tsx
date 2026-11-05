@@ -6,7 +6,7 @@ import type { Product, ProductDetails } from "@/types/product";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-
+export const dynamic = "force-dynamic";
 
 const API_URL = "https://api.api-store.workers.dev/api/bazardor";
 
